@@ -36,19 +36,12 @@ function zakonczTure() {
 // SEKCJA A — INFORMACJE I MAPA
 function nazwaPokoju(numer) {
   // TODO A1: switch; zwroc nazwe pokoju jako tekst.
-  switch (numer){
-    case 1:
-      return pokoje[1];
-    case 2:
-      return "Magazyn";
-    case 3:
-      return "Serwerownia";
-    case 4:
-      return "Wyjscie";
-    default:
-      return "Nieznane pomieszczenie";
-  }
-  return "Nazwa do uzupelnienia";
+  (numer>0 && numer<=4) ? console.log(pokoje[numer].opis) : console.log("Brak pokoju");
+  
+  
+    
+     
+     
 }
 
 // function pomoc() {
