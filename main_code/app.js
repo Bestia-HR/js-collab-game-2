@@ -1,22 +1,22 @@
-// WSPOLNY KONTRAKT: nazwy zmiennych i funkcji uzgadnia caly zespol.
-const MAKS_ENERGIA = 10;
-let pokoj = 1;
-let energia = MAKS_ENERGIA;
-let karta = false;
-let bezpiecznik = false;
-let zasilanie = false;
-let koniec = false;
-let wygrana = false;
+// // WSPOLNY KONTRAKT: nazwy zmiennych i funkcji uzgadnia caly zespol.
+// const MAKS_ENERGIA = 10;
+// let pokoj = 1;
+// let energia = MAKS_ENERGIA;
+// let karta = false;
+// let bezpiecznik = false;
+// let zasilanie = false;
+// let koniec = false;
+// let wygrana = false;
 
 // SEKCJA 0 — GOTOWY SILNIK NAUCZYCIELA
 function start() {
-  pokoj = 1;
-  energia = MAKS_ENERGIA;
-  karta = false;
-  bezpiecznik = false;
-  zasilanie = false;
-  koniec = false;
-  wygrana = false;
+  // pokoj = 1;
+  // energia = MAKS_ENERGIA;
+  // karta = false;
+  // bezpiecznik = false;
+  // zasilanie = false;
+  // koniec = false;
+  // wygrana = false;
   console.log("UCIECZKA Z SERWEROWNI. Zasilanie awaryjne wystarczy na 10 tur.");
   pomoc();
   rozejrzyj();
@@ -38,7 +38,7 @@ function nazwaPokoju(numer) {
   // TODO A1: switch; zwroc nazwe pokoju jako tekst.
   switch (numer){
     case 1:
-      return "Recepcja";
+      return pokoje[1];
     case 2:
       return "Magazyn";
     case 3:
@@ -51,11 +51,11 @@ function nazwaPokoju(numer) {
   return "Nazwa do uzupelnienia";
 }
 
-function pomoc() {
-  console.log('Dostepne: start(), pomoc(), status(), mapa(), rozejrzyj(), idz("prawo") idz("lewo"), akcja("karta"), akcja("bezpiecznik"), akcja("napraw"), akcja("wyjdz")');
-  // TODO A5: dopisz pozostale kierunki i akcje oraz zasade kosztu.
-  console.log('Zasada kosztu: Kazdy udany ruch i udana akcja kosztuja 1 energie. Bledy i przegladanie stanu sa bezplatne.');
-}
+// function pomoc() {
+//   console.log('Dostepne: start(), pomoc(), status(), mapa(), rozejrzyj(), idz("prawo") idz("lewo"), akcja("karta"), akcja("bezpiecznik"), akcja("napraw"), akcja("wyjdz")');
+//   // TODO A5: dopisz pozostale kierunki i akcje oraz zasade kosztu.
+//   console.log('Zasada kosztu: Kazdy udany ruch i udana akcja kosztuja 1 energie. Bledy i przegladanie stanu sa bezplatne.');
+// }
 
 function status() {
   // TODO A3: wypisz pokoj, energie, przedmioty, zasilanie i stan gry.
@@ -116,44 +116,66 @@ function rozejrzyj() {
   
 }
 
-//---------------------------------------------------------------------Adam----//
-
-// SEKCJA B — RUCH (Zaimplementowana zgodnie z poleceniami)
+// SEKCJA B — RUCH
 function idz(kierunek) {
-  // TODO B1: zablokuj ruch po koncu gry.
-  if (koniec) {
-    console.log("Gra sie zakonczyla. Wpisz start(), aby zagrac ponownie.");
-    return;
+  if(koniec==true)
+  {
+    console.log("Gra sie zakonczyla");
+    return ;
   }
-
   let nastepnyPokoj = pokoj;
-
-  // TODO B2: switch kierunku; oblicz kandydat na nowy pokoj.
-  switch (kierunek) {
+  switch(kierunek)
+  {
     case "prawo":
-      nastepnyPokoj++;
-      break;
+      {
+        
+      
+        nastepnyPokoj++;
+        if(nastepnyPokoj>4)
+          {
+            console.log("sciana !!!");
+            return ;
+            
+          }
+          
+         
+      
+        break;
+      }
     case "lewo":
-      nastepnyPokoj--;
-      break;
+      {
+        
+        nastepnyPokoj--;
+        if(nastepnyPokoj<1)
+        {
+          console.log("sciana !!!");
+          return ;
+          
+        }
+        
+        break;
+      }
     default:
-      // TODO B3: odrzuc nieznany kierunek bez kosztu.
-      console.log("Nieznany kierunek. Uzyj: idz(\"lewo\") lub idz(\"prawo\").");
-      return;
-  }
+      {
+        console.log(`Wskazówka: jetes w ${pokoj} pokoju a mozesz sie poruszac w lewo czyli pokoj dalej 
+          lub lewo pokoj nizej `);
+        
+        break;
+        
+      }
 
-  // TODO B3: odrzuc pokoj poza 1..4 bez kosztu (sciana).
-  if (nastepnyPokoj < 1 || nastepnyPokoj > 4) {
-    console.log("Sciana! Nie możesz tam przejść.");
-    return;
-  }
 
-  // TODO B4: zapisz poprawny pokoj, rozejrzyj(), zakonczTure().
-  pokoj = nastepnyPokoj;
+  }
+  pokoj=nastepnyPokoj;
   rozejrzyj();
   zakonczTure();
+  // TODO B1: zablokuj ruch po koncu gry.
+  // TODO B2: switch kierunku; oblicz kandydat na nowy pokoj.
+  // TODO B3: odrzuc pokoj poza 1..4 i nieznany kierunek bez kosztu.
+  // TODO B4: zapisz poprawny pokoj, rozejrzyj(), zakonczTure().
+  // console.log("Ruch do uzupelnienia");
 }
-//-----------------------------------------------------------------------------//
+
 
 // SEKCJA C — PRZEDMIOTY I WYGRANA
 function akcja(co) {

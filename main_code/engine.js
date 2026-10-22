@@ -3,7 +3,7 @@ const pomoc=`Dostepne: start(), pomoc(), status(), mapa(), rozejrzyj(), idz("pra
     Zasada kosztu: Kazdy udany ruch i udana akcja kosztuja 1 energie. Bledy i przegladanie stanu sa bezplatne.`
 
 
-const zmiennePoczatkowe =
+const gracz =
 {
     pokoj:1,
     energia: 10,
@@ -13,6 +13,7 @@ const zmiennePoczatkowe =
     koniec:false,
     wygrana:false
 };
+
 
 
 
