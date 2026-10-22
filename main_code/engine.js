@@ -35,17 +35,6 @@ const pokoj =
 ];
 
 
-
-
-
-<<<<<<< HEAD
-=======
-
-
-
-
-
->>>>>>> e0514fed830e9914abbe812635a5b0a50784072b
 // Adam - punkt 6 walidacja stanu
 function czyStan(wartosc) {
   return (
@@ -62,7 +51,3 @@ function czyStan(wartosc) {
     !(wartosc.bezpiecznik && false) // do dostosowania
   );
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> e0514fed830e9914abbe812635a5b0a50784072b
