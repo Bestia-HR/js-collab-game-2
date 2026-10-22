@@ -83,7 +83,6 @@ function rozejrzyj() {
   }
   
 }
-
 //---------------------------------------------------------------------Adam----//
 
 // SEKCJA B — RUCH (Zaimplementowana zgodnie z poleceniami)
