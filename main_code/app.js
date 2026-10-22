@@ -116,66 +116,44 @@ function rozejrzyj() {
   
 }
 
-// SEKCJA B — RUCH
+//---------------------------------------------------------------------Adam----//
+
+// SEKCJA B — RUCH (Zaimplementowana zgodnie z poleceniami)
 function idz(kierunek) {
-  if(koniec==true)
-  {
-    console.log("Gra sie zakonczyla");
-    return ;
+  // TODO B1: zablokuj ruch po koncu gry.
+  if (koniec) {
+    console.log("Gra sie zakonczyla. Wpisz start(), aby zagrac ponownie.");
+    return;
   }
+
   let nastepnyPokoj = pokoj;
-  switch(kierunek)
-  {
+
+  // TODO B2: switch kierunku; oblicz kandydat na nowy pokoj.
+  switch (kierunek) {
     case "prawo":
-      {
-        
-      
-        nastepnyPokoj++;
-        if(nastepnyPokoj>4)
-          {
-            console.log("sciana !!!");
-            return ;
-            
-          }
-          
-         
-      
-        break;
-      }
+      nastepnyPokoj++;
+      break;
     case "lewo":
-      {
-        
-        nastepnyPokoj--;
-        if(nastepnyPokoj<1)
-        {
-          console.log("sciana !!!");
-          return ;
-          
-        }
-        
-        break;
-      }
+      nastepnyPokoj--;
+      break;
     default:
-      {
-        console.log(`Wskazówka: jetes w ${pokoj} pokoju a mozesz sie poruszac w lewo czyli pokoj dalej 
-          lub lewo pokoj nizej `);
-        
-        break;
-        
-      }
-
-
+      // TODO B3: odrzuc nieznany kierunek bez kosztu.
+      console.log("Nieznany kierunek. Uzyj: idz(\"lewo\") lub idz(\"prawo\").");
+      return;
   }
-  pokoj=nastepnyPokoj;
+
+  // TODO B3: odrzuc pokoj poza 1..4 bez kosztu (sciana).
+  if (nastepnyPokoj < 1 || nastepnyPokoj > 4) {
+    console.log("Sciana! Nie możesz tam przejść.");
+    return;
+  }
+
+  // TODO B4: zapisz poprawny pokoj, rozejrzyj(), zakonczTure().
+  pokoj = nastepnyPokoj;
   rozejrzyj();
   zakonczTure();
-  // TODO B1: zablokuj ruch po koncu gry.
-  // TODO B2: switch kierunku; oblicz kandydat na nowy pokoj.
-  // TODO B3: odrzuc pokoj poza 1..4 i nieznany kierunek bez kosztu.
-  // TODO B4: zapisz poprawny pokoj, rozejrzyj(), zakonczTure().
-  // console.log("Ruch do uzupelnienia");
 }
-
+//-----------------------------------------------------------------------------//
 
 // SEKCJA C — PRZEDMIOTY I WYGRANA
 function akcja(co) {
