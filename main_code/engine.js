@@ -17,7 +17,7 @@ const gracz =
 
 
 
-const pokoje = 
+const pokoj = 
 [
     {
         id:1,opis:"Recepcja"
@@ -34,11 +34,8 @@ const pokoje =
     }
 ];
 
-function status()
-{
-    console.log(pomoc);
-    
-}
+
+
 
 
 
