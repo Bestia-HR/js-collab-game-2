@@ -14,9 +14,6 @@ const gracz =
     wygrana:false
 };
 
-
-
-
 const pokoje = 
 [
     {
@@ -34,13 +31,74 @@ const pokoje =
     }
 ];
 
-function status()
+const informacje =
+  "Karta: " + (karta ? "tak" : "nie") + "\n" +
+  "Pokój: " + pokoj + " (" + nazwaPokoju(pokoj) + ")\n" +
+  "Energia: " + energia + "\n" +
+  "Przedmioty: " + przedmioty + "\n" +
+  "Bezpiecznik: " + (bezpiecznik ? "tak" : "nie") + "\n" +
+  "Zasilanie: " + (zasilanie ? "tak" : "nie") + "\n" +
+  "Koniec gry: " + (koniec ? "tak" : "nie") + "\n" +
+  "Wygrana: " + (wygrana ? "tak" : "nie");
+
+
+
+
+
+function pomoc()
 {
     console.log(pomoc);
     
 }
+function status()
+{
+    console.log(informacje);
+    
+}
 
+function rozejrzyj()
+{
+    const { pokoj, karta, bezpiecznik, zasilanie } = gracz;
+ 
+    console.log("Jestes w: " + nazwaPokoju(pokoj));
+ 
+    switch (pokoj)
+    {
+        case 1:
+            if (!karta) console.log("Karta lezy na biurku.");
+            break;
+        case 2:
+            if (!bezpiecznik) console.log("Bezpiecznik lezy na polce.");
+            break;
+        case 3:
+            console.log(zasilanie
+                ? "Zasilanie dziala."
+                : "Zasilanie nie dziala, zamontuj bezpiecznik.");
+            break;
+        case 4:
+            if (karta && bezpiecznik) console.log("Aby wyjsc wlacz zasilanie i wez karte dostepu.");
+            break;
+        default:
+            console.log("Nieznane pomieszczenie.");
+    }
+}
 
+function mapa()
+{
+    for (let numer = 1; numer <= 4; numer = numer + 1)
+    {
+        let opis = `${numer} ${nazwaPokoju(numer)}`;
+        if (numer === gracz.pokoj)
+        {
+            opis = opis + " <-- jestes tutaj";
+        }
+        console.log(opis);
+    }
+}
+
+//status
+//mapa
+//rozejrzyj
 
 
 

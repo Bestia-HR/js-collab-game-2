@@ -49,7 +49,7 @@ function nazwaPokoju(numer) {
 //   // TODO A5: dopisz pozostale kierunki i akcje oraz zasade kosztu.
 //   console.log('Zasada kosztu: Kazdy udany ruch i udana akcja kosztuja 1 energie. Bledy i przegladanie stanu sa bezplatne.');
 // }
-
+/* 
 function status() {
   // TODO A3: wypisz pokoj, energie, przedmioty, zasilanie i stan gry.
   console.log("Karta: " + (karta ? "tak" : "nie"));
@@ -107,7 +107,7 @@ function rozejrzyj() {
 
   }
   
-}
+}*/
 
 // SEKCJA B — RUCH
 function idz(kierunek) {
