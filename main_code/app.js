@@ -19,13 +19,16 @@ function nazwaPokoju(numer) {
   (numer>0 && numer<=4) ? console.log(pokoje[numer].opis) : console.log("Brak pokoju");
      
 }
+
+
+
 // function pomoc() {
 //   console.log('Dostepne: start(), pomoc(), status(), mapa(), rozejrzyj(), idz("prawo") idz("lewo"), akcja("karta"), akcja("bezpiecznik"), akcja("napraw"), akcja("wyjdz")');
 //   // TODO A5: dopisz pozostale kierunki i akcje oraz zasade kosztu.
 //   console.log('Zasada kosztu: Kazdy udany ruch i udana akcja kosztuja 1 energie. Bledy i przegladanie stanu sa bezplatne.');
 // }
-/* 
-=======
+
+
 function pomoc()
 {
     console.log(pomoc);
@@ -87,10 +90,11 @@ function rozejrzyj() {
       return "Nieznane pomieszczenie";
 
   }
-  
-<<<<<<< HEAD
-}*/
+}
 
+
+
+//------------------------------------------------------------------------------------Adam----//
 // SEKCJA B — RUCH (Zaimplementowana zgodnie z poleceniami)
 function idz(kierunek) {
   // TODO B1: zablokuj ruch po koncu gry.
