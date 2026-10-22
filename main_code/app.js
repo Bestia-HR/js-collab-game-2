@@ -1,60 +1,28 @@
-// WSPOLNY KONTRAKT: nazwy zmiennych i funkcji uzgadnia caly zespol.
-const MAKS_ENERGIA = 10;
-let pokoj = 1;
-let energia = MAKS_ENERGIA;
-let karta = false;
-let bezpiecznik = false;
-let zasilanie = false;
-let koniec = false;
-let wygrana = false;
-
-// SEKCJA 0 — GOTOWY SILNIK NAUCZYCIELA
 function start() {
-  pokoj = 1;
-  energia = MAKS_ENERGIA;
-  karta = false;
-  bezpiecznik = false;
-  zasilanie = false;
-  koniec = false;
-  wygrana = false;
   console.log("UCIECZKA Z SERWEROWNI. Zasilanie awaryjne wystarczy na 10 tur.");
   pomoc();
   rozejrzyj();
 }
 
 function zakonczTure() {
-  energia = energia - 1;
-  console.log("Pozostala energia: " + energia);
-  if (wygrana) {
+  gracz.energia--;
+  console.log("Pozostala energia: " + gracz.energia);
+  if (gracz.wygrana) {
     console.log("WYGRANA! Drzwi otwarte. Mozesz wrocic do domu.");
-  } else if (energia === 0) {
+  } else if (gracz.energia == 0) {
     koniec = true;
     console.log("PRZEGRANA. Zasilanie awaryjne padlo. Wpisz start().");
   }
 }
-
-// SEKCJA A — INFORMACJE I MAPA
 function nazwaPokoju(numer) {
-  // TODO A1: switch; zwroc nazwe pokoju jako tekst.
-  switch (numer){
-    case 1:
-      return "Recepcja";
-    case 2:
-      return "Magazyn";
-    case 3:
-      return "Serwerownia";
-    case 4:
-      return "Wyjscie";
-    default:
-      return "Nieznane pomieszczenie";
-  }
-  return "Nazwa do uzupelnienia";
+ 
+  (numer>0 && numer<=4) ? console.log(pokoje[numer].opis) : console.log("Brak pokoju");
+     
 }
 
-function pomoc() {
-  console.log('Dostepne: start(), pomoc(), status(), mapa(), rozejrzyj(), idz("prawo") idz("lewo"), akcja("karta"), akcja("bezpiecznik"), akcja("napraw"), akcja("wyjdz")');
-  // TODO A5: dopisz pozostale kierunki i akcje oraz zasade kosztu.
-  console.log('Zasada kosztu: Kazdy udany ruch i udana akcja kosztuja 1 energie. Bledy i przegladanie stanu sa bezplatne.');
+function pomoc()
+{
+    console.log(pomoc);
 }
 
 function status() {
@@ -155,6 +123,7 @@ function idz(kierunek) {
 }
 //-----------------------------------------------------------------------------//
 
+
 // SEKCJA C — PRZEDMIOTY I WYGRANA
 function akcja(co) {
   // C1 — blokada po koncu gry
@@ -167,40 +136,40 @@ function akcja(co) {
   switch (co) {
 
     case "karta":
-      if (pokoj !== 1 || karta) {
+      if (pokoj.id !== 1 || karta) {
         console.log("Tutaj nie ma karty do zabrania.");
         return;
       }
-      karta = true;
+      gracz.karta = true;
       console.log("Zabierasz karte dostepu.");
       break;
 
     case "bezpiecznik":
-      if (pokoj !== 2 || bezpiecznik || zasilanie) {
+      if (pokoj.id !== 2 || bezpiecznik || zasilanie) {
         console.log("Tutaj nie ma bezpiecznika do zabrania.");
         return;
       }
-      bezpiecznik = true;
+      gracz.bezpiecznik = true;
       console.log("Zabierasz bezpiecznik.");
       break;
 
     case "napraw":
-      if (pokoj !== 3 || !bezpiecznik || zasilanie) {
+      if (pokoj.id !== 3 || !bezpiecznik || zasilanie) {
         console.log("Nie mozesz tu nic naprawic.");
         return;
       }
-      bezpiecznik = false;
-      zasilanie = true;
+      gracz.bezpiecznik = false;
+      gracz.zasilanie = true;
       console.log("Montujesz bezpiecznik. Zasilanie wrocilo!");
       break;
 
     case "wyjdz":
-      if (pokoj !== 4 || !karta || !zasilanie) {
+      if (pokoj.id !== 4 || !karta || !zasilanie) {
         console.log("Drzwi sie nie otwieraja. Potrzebujesz karty i dzialajacego zasilania.");
         return;
       }
-      wygrana = true;
-      koniec = true;
+      gracz.wygrana = true;
+      gracz.koniec = true;
       console.log("Drzwi sie otwieraja! Uciekasz z serwerowni!");
       break;
 
