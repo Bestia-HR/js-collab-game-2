@@ -19,8 +19,6 @@ function nazwaPokoju(numer) {
   (numer>0 && numer<=4) ? console.log(pokoje[numer].opis) : console.log("Brak pokoju");
      
 }
-
-<<<<<<< HEAD
 // function pomoc() {
 //   console.log('Dostepne: start(), pomoc(), status(), mapa(), rozejrzyj(), idz("prawo") idz("lewo"), akcja("karta"), akcja("bezpiecznik"), akcja("napraw"), akcja("wyjdz")');
 //   // TODO A5: dopisz pozostale kierunki i akcje oraz zasade kosztu.
@@ -33,7 +31,6 @@ function pomoc()
     console.log(pomoc);
 }
 
->>>>>>> 22e561125be5bebe956e5cae0b6c1ee24dbb205c
 function status() {
   // TODO A3: wypisz pokoj, energie, przedmioty, zasilanie i stan gry.
   console.log("Karta: " + (karta ? "tak" : "nie"));
@@ -93,10 +90,6 @@ function rozejrzyj() {
   
 <<<<<<< HEAD
 }*/
-=======
-}
-//---------------------------------------------------------------------Adam----//
->>>>>>> 22e561125be5bebe956e5cae0b6c1ee24dbb205c
 
 // SEKCJA B — RUCH (Zaimplementowana zgodnie z poleceniami)
 function idz(kierunek) {

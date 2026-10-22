@@ -14,14 +14,11 @@ const gracz =
     wygrana:false
 };
 
-<<<<<<< HEAD
-const pokoje = 
-=======
+
 
 
 
 const pokoj = 
->>>>>>> 22e561125be5bebe956e5cae0b6c1ee24dbb205c
 [
     {
         id:1,opis:"Recepcja"
@@ -38,7 +35,6 @@ const pokoj =
     }
 ];
 
-<<<<<<< HEAD
 const informacje =
   "Karta: " + (karta ? "tak" : "nie") + "\n" +
   "Pokój: " + pokoj + " (" + nazwaPokoju(pokoj) + ")\n" +
@@ -48,9 +44,6 @@ const informacje =
   "Zasilanie: " + (zasilanie ? "tak" : "nie") + "\n" +
   "Koniec gry: " + (koniec ? "tak" : "nie") + "\n" +
   "Wygrana: " + (wygrana ? "tak" : "nie");
-
-
-
 
 
 function pomoc()
@@ -108,11 +101,6 @@ function mapa()
 //mapa
 //rozejrzyj
 
-
-
-
-=======
->>>>>>> 22e561125be5bebe956e5cae0b6c1ee24dbb205c
 
 // Adam - punkt 6 walidacja stanu
 function czyStan(wartosc) {
