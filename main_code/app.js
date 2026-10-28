@@ -1,123 +1,188 @@
-// app.js — warstwa konsoli: przyjmuje polecenia, woła silnik z engine.js i pokazuje wynik.
-// Reguły gry są tylko w engine.js (funkcja przejscie).
-
-let stan = nowyStan();
-
-function takNie(wartosc) {
-  return wartosc ? "tak" : "nie";
+function start() {
+  console.log("UCIECZKA Z SERWEROWNI. Zasilanie awaryjne wystarczy na 10 tur.");
+  pomoc();
+  rozejrzyj();
 }
 
-// Jedno miejsce, w którym aplikacja wykonuje komendę przez silnik i pokazuje wynik
-function wykonaj(komenda) {
-  const przed = stan;
-  const wynik = przejscie(przed, komenda);
-  stan = wynik.stan;
-  console.log(wynik.komunikat);
+function zakonczTure() {
+  gracz.energia--;
+  console.log("Pozostala energia: " + gracz.energia);
+  if (gracz.wygrana) {
+    console.log("WYGRANA! Drzwi otwarte. Mozesz wrocic do domu.");
+  } else if (gracz.energia == 0) {
+    koniec = true;
+    console.log("PRZEGRANA. Zasilanie awaryjne padlo. Wpisz start().");
+  }
+}
+function nazwaPokoju(numer) {
+ 
+  (numer>0 && numer<=4) ? console.log(pokoje[numer].opis) : console.log("Brak pokoju");
+     
+}
 
-  // Odrzucona komenda nie kosztuje energii, więc nie ma nic więcej do pokazania
-  if (stan.energia === przed.energia) return;
 
-  if (stan.pokoj !== przed.pokoj) console.log(opisPokoju(stan));
-  console.log(`Pozostała energia: ${stan.energia}/${ENERGIA_START}`);
 
-  if (stan.wygrana) {
-    console.log("WYGRANA! Drzwi otwarte. Możesz wrócić do domu.");
-  } else if (stan.koniec) {
-    console.log("PRZEGRANA. Zasilanie awaryjne padło. Wpisz gra.reset(), aby zagrać ponownie.");
+ function pomoc() {
+   console.log('Dostepne: start(), pomoc(), status(), mapa(), rozejrzyj(), idz("prawo") idz("lewo"), akcja("karta"), akcja("bezpiecznik"), akcja("napraw"), akcja("wyjdz")');
+   console.log('Zasada kosztu: Kazdy udany ruch i udana akcja kosztuja 1 energie. Bledy i przegladanie stanu sa bezplatne.');
+ }
+
+
+function status() {
+  // TODO A3: wypisz pokoj, energie, przedmioty, zasilanie i stan gry.
+  console.log("Karta: " + (karta ? "tak" : "nie"));
+  console.log("Pokoj: " + pokoj + "(" + nazwaPokoju(pokoj) + ")");
+  console.log("Energia: " + energia);
+  console.log("Bezpiecznik: " + (bezpiecznik ? "tak" : "nie" ));
+  console.log("Zasilanie: " + (zasilanie ? "tak" : "nie"));
+  console.log("Koniec gry: " + (koniec ? "tak" : "nie"));
+  console.log("Wygrana: " + (wygrana ? "tak" : "nie"));
+}
+
+function mapa() {
+  // TODO A2: petla for od 1 do 4; nazwa i znacznik aktualnego pokoju.
+  for( let numer = 1; numer <= 4; numer = numer + 1){
+
+    let opis = `${numer} ${nazwaPokoju(numer)}`;
+    if(numer === pokoj){
+      opis = opis + '<-- jestes tutaj';
+    }
+    console.log(opis);
   }
 }
 
-// Polecenia konsolowe zgrupowane w jednym obiekcie
-const gra = {
-  pomoc() {
-    console.log([
-      "Polecenia (wpisuj w konsoli):",
-      "  pomoc()               – ta lista",
-      "  status()              – pokój, energia, przedmioty, stan gry",
-      "  mapa()                – mapa korytarza",
-      "  rozejrzyj()           – opis pomieszczenia",
-      '  idz("lewo")           – ruch w lewo',
-      '  idz("prawo")          – ruch w prawo',
-      '  akcja("karta")        – weź kartę dostępu (Recepcja)',
-      '  akcja("bezpiecznik")  – weź bezpiecznik (Magazyn)',
-      '  akcja("napraw")       – zamontuj bezpiecznik (Serwerownia)',
-      '  akcja("wyjdz")        – otwórz drzwi (Wyjście, potrzebna karta i zasilanie)',
-      "  reset()               – nowa gra",
-      "  eksport()             – zwraca zapis gry jako tekst JSON",
-      "  importuj()            – wczytuje zapis (otwiera okno do wklejenia tekstu)",
-      "Zasada kosztu: każdy udany ruch i udana akcja kosztują 1 energię.",
-      "Błędy (ściana, brak przedmiotu, nieznana komenda) i podgląd stanu są bezpłatne."
-    ].join("\n"));
-  },
+function rozejrzyj() {
+  // TODO A4: switch(pokoj); opis zgodny ze stanem przedmiotow.
+  switch(pokoj){
+    case 1:
+      console.log("Jestes w Recepcji");
+      if(!karta){
+        console.log("karta lezy na biurku");
+      }
+      break;
+    case 2:
+      console.log("Jestes w magazynie");
+      if(!bezpiecznik && !zasilanie){
+        console.log("Bezpiecznik lezy na polce");
+      }
+      break;
+    case 3:
+      console.log("Jestes w Serwerowni");
+      if(zasilanie){
+        console.log("Zasilanie dziala");
+      }else{
+        console.log("Zasilanie nie dziala, zamontuj bezpiecznik")
+      }
+      break;
+    case 4:
+      console.log("Jestes przy wyjsciu");
+      if(karta && bezpiecznik){
+        console.log("Aby wyjsc wlacz zasilanie i wez karte dostepu");
+      }
+      break;
+    default:
+      return "Nieznane pomieszczenie";
 
-  status() {
-    const wynikGry = stan.wygrana ? "wygrana" : stan.koniec ? "przegrana" : "w toku";
-    console.log(`Pokój: ${stan.pokoj} (${nazwaPokoju(stan.pokoj)})`);
-    console.log(`Energia: ${stan.energia}/${ENERGIA_START}`);
-    console.log(`Karta: ${takNie(stan.karta)}`);
-    console.log(`Bezpiecznik w plecaku: ${takNie(stan.bezpiecznik)}`);
-    console.log(`Zasilanie: ${stan.zasilanie ? "działa" : "nie działa"}`);
-    console.log(`Stan gry: ${wynikGry}`);
-  },
-
-  mapa() {
-    for (const p of pokoje) {
-      let linia = `${p.id}. ${p.nazwa}`;
-      if (p.id === stan.pokoj) linia += "  <-- jesteś tutaj";
-      console.log(linia);
-    }
-  },
-
-  rozejrzyj() {
-    console.log(opisPokoju(stan));
-  },
-
-  idz(kierunek) {
-    if (!KIERUNKI.includes(kierunek)) {
-      console.log('Nieznany kierunek. Użyj gra.idz("lewo") lub gra.idz("prawo").');
-      return;
-    }
-    wykonaj(kierunek);
-  },
-
-  akcja(co) {
-    if (!AKCJE.includes(co)) {
-      console.log('Nieznana akcja. Dostępne: "karta", "bezpiecznik", "napraw", "wyjdz".');
-      return;
-    }
-    wykonaj(co);
-  },
-
-  reset() {
-    stan = nowyStan();
-    console.log(`Nowa gra. Zasilanie awaryjne wystarczy na ${ENERGIA_START} tur.`);
-    gra.rozejrzyj();
-  },
-
-  // Zwraca tekst JSON. Nie zapisuje pliku: użytkownik kopiuje tekst do edytora.
-  eksport() {
-    const tekst = utworzZapis(stan);
-    console.log("Skopiuj poniższą linię do edytora (np. Notatnika) i zapisz jako plik .json:");
-    console.log(tekst);
-    return tekst;
-  },
-
-  // Bez argumentu otwiera okno prompt. Stan jest podmieniany dopiero po sprawdzeniu całości.
-  importuj(tekst) {
-    if (tekst === undefined) {
-      tekst = prompt("Wklej zawartość pliku z zapisem (tekst JSON):");
-    }
-    const wynik = odczytajZapis(tekst);
-    if (!wynik.ok) {
-      console.log(`Import odrzucony. ${wynik.blad} Stan gry bez zmian.`);
-      return;
-    }
-    stan = wynik.stan;
-    console.log("Zapis wczytany.");
-    gra.status();
   }
-};
+}
 
-console.log(`UCIECZKA Z SERWEROWNI. Zasilanie awaryjne wystarczy na ${ENERGIA_START} tur.`);
-gra.pomoc();
-gra.rozejrzyj();
+
+
+//------------------------------------------------------------------------------------Adam----//
+// SEKCJA B — RUCH (Zaimplementowana zgodnie z poleceniami)
+function idz(kierunek) {
+  // TODO B1: zablokuj ruch po koncu gry.
+  if (koniec) {
+    console.log("Gra sie zakonczyla. Wpisz start(), aby zagrac ponownie.");
+    return;
+  }
+
+  let nastepnyPokoj = pokoj;
+
+  // TODO B2: switch kierunku; oblicz kandydat na nowy pokoj.
+  switch (kierunek) {
+    case "prawo":
+      nastepnyPokoj++;
+      break;
+    case "lewo":
+      nastepnyPokoj--;
+      break;
+    default:
+      // TODO B3: odrzuc nieznany kierunek bez kosztu.
+      console.log("Nieznany kierunek. Uzyj: idz(\"lewo\") lub idz(\"prawo\").");
+      return;
+  }
+
+  // TODO B3: odrzuc pokoj poza 1..4 bez kosztu (sciana).
+  if (nastepnyPokoj < 1 || nastepnyPokoj > 4) {
+    console.log("Sciana! Nie możesz tam przejść.");
+    return;
+  }
+
+  // TODO B4: zapisz poprawny pokoj, rozejrzyj(), zakonczTure().
+  pokoj = nastepnyPokoj;
+  rozejrzyj();
+  zakonczTure();
+}
+//-----------------------------------------------------------------------------//
+
+
+// SEKCJA C — PRZEDMIOTY I WYGRANA
+function akcja(co) {
+  // C1 — blokada po koncu gry
+  if (koniec) {
+    console.log("Gra sie skonczyla. Wpisz start(), aby zagrac ponownie.");
+    return;
+  }
+
+  // C2 — cztery akcje
+  switch (co) {
+
+    case "karta":
+      if (pokoj.id !== 1 || karta) {
+        console.log("Tutaj nie ma karty do zabrania.");
+        return;
+      }
+      gracz.karta = true;
+      console.log("Zabierasz karte dostepu.");
+      break;
+
+    case "bezpiecznik":
+      if (pokoj.id !== 2 || bezpiecznik || zasilanie) {
+        console.log("Tutaj nie ma bezpiecznika do zabrania.");
+        return;
+      }
+      gracz.bezpiecznik = true;
+      console.log("Zabierasz bezpiecznik.");
+      break;
+
+    case "napraw":
+      if (pokoj.id !== 3 || !bezpiecznik || zasilanie) {
+        console.log("Nie mozesz tu nic naprawic.");
+        return;
+      }
+      gracz.bezpiecznik = false;
+      gracz.zasilanie = true;
+      console.log("Montujesz bezpiecznik. Zasilanie wrocilo!");
+      break;
+
+    case "wyjdz":
+      if (pokoj.id !== 4 || !karta || !zasilanie) {
+        console.log("Drzwi sie nie otwieraja. Potrzebujesz karty i dzialajacego zasilania.");
+        return;
+      }
+      gracz.wygrana = true;
+      gracz.koniec = true;
+      console.log("Drzwi sie otwieraja! Uciekasz z serwerowni!");
+      break;
+
+    default:
+      console.log("Nieznana akcja. Wpisz pomoc(), aby zobaczyc liste.");
+      return;
+  }
+
+  // C3 — koszt energii w jednym miejscu
+  zakonczTure();
+}
+
+start();
