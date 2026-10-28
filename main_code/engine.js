@@ -1,11 +1,9 @@
-// engine.js — model i reguły gry.
-// Ten plik niczego nie wypisuje: funkcje przyjmują dane i zwracają wynik.
-// Wypisywaniem w konsoli zajmuje się app.js.
-
 const WERSJA_ZAPISU = 1;
+
 const ENERGIA_START = 10;
 
-// Kolekcja pomieszczeń (kolejność = korytarz od lewej do prawej)
+
+
 const pokoje = [
   { id: 1, nazwa: "Recepcja", opis: "Jesteś w recepcji." },
   { id: 2, nazwa: "Magazyn", opis: "Jesteś w magazynie." },
@@ -13,20 +11,29 @@ const pokoje = [
   { id: 4, nazwa: "Wyjście", opis: "Jesteś przy drzwiach wyjściowych." }
 ];
 
+
+
 const KIERUNKI = ["lewo", "prawo"];
+
 const AKCJE = ["karta", "bezpiecznik", "napraw", "wyjdz"];
+
 const POLA_STANU = ["pokoj", "energia", "karta", "bezpiecznik", "zasilanie", "koniec", "wygrana"];
+
+
 
 function znajdzPokoj(numer) {
   return pokoje.find(p => p.id === numer);
 }
+
+
 
 function nazwaPokoju(numer) {
   const p = znajdzPokoj(numer);
   return p ? p.nazwa : "Brak pokoju";
 }
 
-// Fabryka stanu: zawsze zwraca nowy obiekt na start gry
+
+
 function nowyStan() {
   return {
     pokoj: 1,
@@ -39,7 +46,8 @@ function nowyStan() {
   };
 }
 
-// Opis pomieszczenia zależny od stanu przedmiotów (zwraca tekst, nie wypisuje)
+
+
 function opisPokoju(stan) {
   const p = znajdzPokoj(stan.pokoj);
   if (!p) return "Nieznane pomieszczenie.";
@@ -65,13 +73,13 @@ function opisPokoju(stan) {
   return tekst;
 }
 
-// Walidator stanu. Zwraca opis pierwszego problemu albo null, gdy stan jest poprawny.
+
+
 function bladStanu(w) {
   if (w === null || typeof w !== "object" || Array.isArray(w)) {
     return "stan musi być obiektem.";
   }
 
-  // Dokładnie te pola, które ma wersja 1 (patrz decyzja w README)
   const klucze = Object.keys(w);
   for (const klucz of klucze) {
     if (!POLA_STANU.includes(klucz)) return `nieznane pole "${klucz}".`;
@@ -80,7 +88,6 @@ function bladStanu(w) {
     if (!klucze.includes(pole)) return `brak pola "${pole}".`;
   }
 
-  // Typy i zakresy
   if (!Number.isInteger(w.pokoj) || w.pokoj < 1 || w.pokoj > pokoje.length) {
     return `pole "pokoj" musi być liczbą całkowitą od 1 do ${pokoje.length}.`;
   }
@@ -91,7 +98,6 @@ function bladStanu(w) {
     if (typeof w[pole] !== "boolean") return `pole "${pole}" musi mieć wartość true lub false.`;
   }
 
-  // Zależności między polami (stany, do których nie da się dojść, grając)
   if (w.bezpiecznik && w.zasilanie) {
     return "bezpiecznik nie może być jednocześnie w plecaku i zamontowany.";
   }
@@ -110,12 +116,14 @@ function bladStanu(w) {
   return null;
 }
 
+
+
 function czyStan(w) {
   return bladStanu(w) === null;
 }
 
-// Czysta funkcja reguł: nie zmienia stanPrzed i niczego nie wypisuje.
-// Zwraca { stan, komunikat }. Odrzucona komenda zwraca stan bez zmian i bez kosztu.
+
+
 function przejscie(stanPrzed, komenda) {
   if (stanPrzed.koniec) {
     return { stan: stanPrzed, komunikat: "Gra się zakończyła. Wpisz gra.reset(), aby zagrać ponownie." };
@@ -156,7 +164,7 @@ function przejscie(stanPrzed, komenda) {
       if (stanPo.pokoj !== 3 || !stanPo.bezpiecznik || stanPo.zasilanie) {
         return { stan: stanPrzed, komunikat: "Nie możesz tu nic naprawić." };
       }
-      stanPo.bezpiecznik = false; // bezpiecznik zostaje zużyty
+      stanPo.bezpiecznik = false;
       stanPo.zasilanie = true;
       komunikat = "Montujesz bezpiecznik. Zasilanie wróciło!";
       break;
@@ -174,7 +182,6 @@ function przejscie(stanPrzed, komenda) {
       return { stan: stanPrzed, komunikat: `Nieznana komenda "${komenda}". Wpisz gra.pomoc(), aby zobaczyć listę.` };
   }
 
-  // Każda udana komenda kosztuje 1 energię. Wygrana ma pierwszeństwo przed porażką.
   stanPo.energia--;
   if (stanPo.energia === 0 && !stanPo.wygrana) {
     stanPo.koniec = true;
@@ -183,13 +190,14 @@ function przejscie(stanPrzed, komenda) {
   return { stan: stanPo, komunikat };
 }
 
-// Zapis: tekst JSON z numerem wersji i stanem
+
+
 function utworzZapis(stan) {
   return JSON.stringify({ wersja: WERSJA_ZAPISU, stan: stan });
 }
 
-// Odczyt: sprawdza składnię, wersję, typy, zakresy i zależności.
-// Zwraca { ok: true, stan } albo { ok: false, blad }. Sam niczego nie podmienia.
+
+
 function odczytajZapis(tekst) {
   if (tekst === null || tekst === undefined) {
     return { ok: false, blad: "Import anulowany." };

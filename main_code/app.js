@@ -1,20 +1,19 @@
-// app.js — warstwa konsoli: przyjmuje polecenia, woła silnik z engine.js i pokazuje wynik.
-// Reguły gry są tylko w engine.js (funkcja przejscie).
-
 let stan = nowyStan();
+
+
 
 function takNie(wartosc) {
   return wartosc ? "tak" : "nie";
 }
 
-// Jedno miejsce, w którym aplikacja wykonuje komendę przez silnik i pokazuje wynik
+
+
 function wykonaj(komenda) {
   const przed = stan;
   const wynik = przejscie(przed, komenda);
   stan = wynik.stan;
   console.log(wynik.komunikat);
 
-  // Odrzucona komenda nie kosztuje energii, więc nie ma nic więcej do pokazania
   if (stan.energia === przed.energia) return;
 
   if (stan.pokoj !== przed.pokoj) console.log(opisPokoju(stan));
@@ -27,7 +26,14 @@ function wykonaj(komenda) {
   }
 }
 
-// Polecenia konsolowe zgrupowane w jednym obiekcie
+
+
+function rozejrzyj() {
+  console.log(opisPokoju(stan));
+}
+
+
+
 const gra = {
   pomoc() {
     console.log([
@@ -94,7 +100,6 @@ const gra = {
     gra.rozejrzyj();
   },
 
-  // Zwraca tekst JSON. Nie zapisuje pliku: użytkownik kopiuje tekst do edytora.
   eksport() {
     const tekst = utworzZapis(stan);
     console.log("Skopiuj poniższą linię do edytora (np. Notatnika) i zapisz jako plik .json:");
@@ -102,7 +107,6 @@ const gra = {
     return tekst;
   },
 
-  // Bez argumentu otwiera okno prompt. Stan jest podmieniany dopiero po sprawdzeniu całości.
   importuj(tekst) {
     if (tekst === undefined) {
       tekst = prompt("Wklej zawartość pliku z zapisem (tekst JSON):");
@@ -118,6 +122,10 @@ const gra = {
   }
 };
 
+
+
 console.log(`UCIECZKA Z SERWEROWNI. Zasilanie awaryjne wystarczy na ${ENERGIA_START} tur.`);
+
 gra.pomoc();
+
 gra.rozejrzyj();
