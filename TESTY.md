@@ -1,22 +1,45 @@
-# Próby odbioru
+# Testy gry
 
-| Wymaganie | Stan początkowy | Działanie | Wynik oczekiwany | Wynik faktyczny | Kto sprawdził |
-|---|---|---|---|---|---|
-| | | | | | |
+Skróty z menu: `g(1)` lewo, `g(2)` prawo, `g(3)` karta, `g(4)` bezpiecznik, `g(5)` napraw, `g(6)` wyjdź, `g(8)` status, `g(11)` zapisz, `g(12)` wczytaj, `g(13)` nowa gra.
 
-Uwzględnij zwykłą ścieżkę, granicę, błędne wejście i zachowanie po błędzie. Jeden test regresji dotyczy wcześniejszej funkcji, której nowa zmiana miała nie naruszyć.
+## Tabela testów
 
-## Odtworzenie
+| Nr  | Co sprawdzamy                           | Od czego zaczynamy                                      | Co robimy                                                                              | Co powinno się stać                                                                | Co się stało                                                                                   | Kto sprawdził |
+| --- | --------------------------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------- |
+| 1   | Nie da się wyjść za lewą ścianę         | nowa gra, Recepcja, energia 10                          | `g(1)` (idź w lewo)                                                                    | napis „Ściana!”, dalej Recepcja i energia 10                                       | tak jak powinno                                                                                | Claude        |
+| 2   | Karty nie da się wziąć dwa razy         | Recepcja, karta już wzięta, energia 9                   | `g(3)` (weź kartę)                                                                     | napis „Tutaj nie ma karty”, energia dalej 9                                        | tak jak powinno                                                                                | Claude        |
+| 3   | Naprawa zasilania                       | Serwerownia, bezpiecznik w plecaku, energia 6           | `g(5)` (napraw)                                                                        | zasilanie działa, bezpiecznik zużyty, energia 5                                    | tak jak powinno                                                                                | Claude        |
+| 4   | Zapis i wczytanie po odświeżeniu strony | gra w trakcie, energia 6, karta i bezpiecznik w plecaku | `g(11)`, kopiujemy tekst do Notatnika, F5, `g(12)` i wklejamy tekst                    | „Zapis wczytany.” – wszystko jak przed odświeżeniem                                | tak jak powinno (tekst przenieśliśmy ręcznie; zapis na pendrive zrobi zespół)                  | Claude        |
+| 5   | Ucięty tekst zapisu                     | gra w trakcie                                           | `gra.importuj("{")`                                                                    | „Import odrzucony… tekst jest urwany”, gra bez zmian                               | tak jak powinno                                                                                | Claude        |
+| 6   | Zła wersja zapisu                       | gra w trakcie                                           | wklejamy zapis z `"wersja":99`                                                         | „Nieobsługiwana wersja zapisu”, gra bez zmian                                      | tak jak powinno                                                                                | Claude        |
+| 7   | Energia wpisana jako tekst              | gra w trakcie                                           | wklejamy zapis z `"energia":"5"` (w cudzysłowie)                                       | odrzucenie całego zapisu, gra bez zmian                                            | tak jak powinno                                                                                | Claude        |
+| 8   | Kliknięcie „Anuluj” w okienku           | gra w trakcie                                           | `g(12)` i klikamy Anuluj                                                               | „Import anulowany”, gra bez zmian                                                  | tak jak powinno (sprawdzone wywołaniem `gra.importuj(null)`, bo tyle oddaje okienko po Anuluj) | Claude        |
+| 9   | Pusty tekst                             | gra w trakcie                                           | `g(12)`, nic nie wpisujemy, OK                                                         | „Nie podano tekstu”, gra bez zmian                                                 | tak jak powinno                                                                                | Claude        |
+| 10  | Pokój, którego nie ma                   | gra w trakcie                                           | wklejamy zapis z `"pokoj":99`                                                          | odrzucenie, gra bez zmian                                                          | tak jak powinno                                                                                | Claude        |
+| 11  | Dane, które się wykluczają              | gra w trakcie                                           | wklejamy zapis, gdzie bezpiecznik jest jednocześnie w plecaku i zamontowany            | odrzucenie, gra bez zmian                                                          | tak jak powinno                                                                                | Claude        |
+| 12  | Dopisane obce pole                      | gra w trakcie                                           | wklejamy dobry zapis z dodatkiem `"hack":1`                                            | zapis wczytany, ale pola `hack` nie ma w grze                                      | tak jak powinno                                                                                | Claude        |
+| 13  | Wygrana na ostatniej energii            | Wyjście, energia 1, karta i zasilanie są                | `g(6)` (wyjdź)                                                                         | WYGRANA, a nie przegrana, mimo że energia spadła do 0                              | tak jak powinno                                                                                | Claude        |
+| 14  | Przegrana                               | energia 1, nie da się wygrać                            | dowolny ruch, np. `g(2)`                                                               | PRZEGRANA, energia 0                                                               | tak jak powinno                                                                                | Claude        |
+| 15  | Po końcu gry nic się nie zmienia        | gra wygrana                                             | `g(1)`, `g(6)`, potem `g(11)` i `g(13)`                                                | ruchy nic nie robią, zapis działa, nowa gra startuje od początku                   | tak jak powinno                                                                                | Claude        |
+| 16  | Funkcja reguł nie zmienia oryginału     | Serwerownia z bezpiecznikiem                            | `przejscie(stan, "napraw")` i porównanie stanu przed i po                              | stary stan zostaje taki sam, zmiany są w nowym obiekcie                            | tak jak powinno                                                                                | Claude        |
+| 17  | Menu numerowane                         | nowa gra                                                | `g()`, `g(99)`, potem cała gra: `g(3)`, `g(2)`, `g(4)`, `g(2)`, `g(5)`, `g(2)`, `g(6)` | menu się pokazuje, `g(99)` – „Nie ma pozycji”, na końcu WYGRANA z energią 3        | tak jak powinno                                                                                | Claude        |
+| 18  | Czyszczenie konsoli                     | nowa gra                                                | kilka poleceń po kolei, np. `g(3)`, `g(2)`                                             | po każdym poleceniu konsola się czyści, na górze menu, pod nim tylko ostatni wynik | tak jak powinno                                                                                | Claude        |
+| 19  | Historia komend (nasz dodatek)          | nowa gra                                                | `g(1)`, `g(3)`, `g(10)`                                                                | „1. lewo – odmowa”, „2. karta – wykonano”                                          | tak jak powinno                                                                                | Claude        |
+| 20  | Nieznane polecenie                      | dowolny                                                 | `przejscie(stan, "skok")`                                                              | „Nieznana komenda”, energia się nie zmienia                                        | tak jak powinno                                                                                | Claude        |
 
-Wersja Node:
-Wersje pakietów / lockfile:
-Komendy:
-System i przeglądarka:
+**Test regresji** (czy nie zepsuliśmy starej gry): testy 1, 2 i 3 – zasady z pierwszej gry działają tak samo jak wcześniej.
 
-## Błąd do poprawy
+## Na czym testowaliśmy
 
-Najkrótsze kroki odtworzenia:
-Oczekiwane:
-Otrzymane:
-Hipoteza:
-Wynik ponownej próby po poprawce:
+- Node: niepotrzebny, gra działa bez niego
+- Pakiety: brak
+- Jak uruchomić: dwuklik na `main_code/index.html`, F12 → Console
+- System i przeglądarka: Windows 11, przeglądarka oparta na Chrome
+
+## Znaleziony błąd
+
+- **Jak go wywołać:** w starej wersji wpisać w konsoli `gra.eksportuj()`.
+- **Co powinno być:** funkcja zwraca tekst zapisu.
+- **Co było:** błąd „gra.eksportuj is not a function”. Funkcja nazywała się inaczej (`gra.eksport`) i do tego wypisywała zapis dwa razy.
+- **Dlaczego:** przy pisaniu kodu nazwy funkcji nie zgadzały się z tym, co ustaliliśmy w 02_TECH.
+- **Po poprawce:** `gra.eksportuj()` działa i zwraca tekst, a wczytywanie zapisu odpowiada `true` (udało się) albo `false` (odrzucone). Testy 4–9 przechodzą.

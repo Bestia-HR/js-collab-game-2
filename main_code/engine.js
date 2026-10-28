@@ -1,3 +1,5 @@
+// engine.js – reguły gry. Nic tutaj nie wypisuje tekstu i nie zmienia stanu wejściowego.
+
 const WERSJA_ZAPISU = 1;
 
 const ENERGIA_START = 10;
@@ -11,6 +13,11 @@ const pokoje = [
   { id: 4, nazwa: "Wyjście", opis: "Jesteś przy drzwiach wyjściowych." }
 ];
 
+const POKOJ_KARTA = 1;
+const POKOJ_BEZPIECZNIK = 2;
+const POKOJ_NAPRAWA = 3;
+const POKOJ_WYJSCIE = 4;
+
 
 
 const KIERUNKI = ["lewo", "prawo"];
@@ -18,6 +25,8 @@ const KIERUNKI = ["lewo", "prawo"];
 const AKCJE = ["karta", "bezpiecznik", "napraw", "wyjdz"];
 
 const POLA_STANU = ["pokoj", "energia", "karta", "bezpiecznik", "zasilanie", "koniec", "wygrana"];
+
+const POLA_LOGICZNE = ["karta", "bezpiecznik", "zasilanie", "koniec", "wygrana"];
 
 
 
@@ -34,7 +43,8 @@ function nazwaPokoju(numer) {
 
 
 
-function nowyStan() {
+// Fabryka: każde wywołanie zwraca nowy, niezależny obiekt.
+function stanPoczatkowy() {
   return {
     pokoj: 1,
     energia: ENERGIA_START,
@@ -54,18 +64,18 @@ function opisPokoju(stan) {
 
   let tekst = p.opis;
   switch (stan.pokoj) {
-    case 1:
+    case POKOJ_KARTA:
       if (!stan.karta) tekst += " Na biurku leży karta dostępu.";
       break;
-    case 2:
+    case POKOJ_BEZPIECZNIK:
       if (!stan.bezpiecznik && !stan.zasilanie) tekst += " Na półce leży bezpiecznik.";
       break;
-    case 3:
+    case POKOJ_NAPRAWA:
       if (stan.zasilanie) tekst += " Zasilanie działa, serwery szumią.";
       else if (stan.bezpiecznik) tekst += " Rozdzielnica czeka na bezpiecznik, możesz go zamontować.";
       else tekst += " W rozdzielnicy brakuje bezpiecznika.";
       break;
-    case 4:
+    case POKOJ_WYJSCIE:
       if (stan.karta && stan.zasilanie) tekst += " Czytnik świeci na zielono, możesz wyjść.";
       else tekst += " Do otwarcia drzwi potrzebujesz karty dostępu i działającego zasilania.";
       break;
@@ -75,157 +85,115 @@ function opisPokoju(stan) {
 
 
 
+// Zwraca opis pierwszego znalezionego problemu albo null, gdy stan jest poprawny.
+// Dodatkowe, nieznane pola nie są błędem – przy imporcie i tak przepisujemy tylko POLA_STANU.
 function bladStanu(w) {
   if (w === null || typeof w !== "object" || Array.isArray(w)) {
     return "stan musi być obiektem.";
   }
 
-  const klucze = Object.keys(w);
-  for (const klucz of klucze) {
-    if (!POLA_STANU.includes(klucz)) return `nieznane pole "${klucz}".`;
-  }
   for (const pole of POLA_STANU) {
-    if (!klucze.includes(pole)) return `brak pola "${pole}".`;
+    if (!(pole in w)) return `brak pola "${pole}".`;
   }
 
-  if (!Number.isInteger(w.pokoj) || w.pokoj < 1 || w.pokoj > pokoje.length) {
-    return `pole "pokoj" musi być liczbą całkowitą od 1 do ${pokoje.length}.`;
+  if (!Number.isInteger(w.pokoj) || !znajdzPokoj(w.pokoj)) {
+    return `pole "pokoj" musi być numerem istniejącego pokoju (1–${pokoje.length}).`;
   }
   if (!Number.isInteger(w.energia) || w.energia < 0 || w.energia > ENERGIA_START) {
     return `pole "energia" musi być liczbą całkowitą od 0 do ${ENERGIA_START}.`;
   }
-  for (const pole of ["karta", "bezpiecznik", "zasilanie", "koniec", "wygrana"]) {
+  for (const pole of POLA_LOGICZNE) {
     if (typeof w[pole] !== "boolean") return `pole "${pole}" musi mieć wartość true lub false.`;
   }
 
   if (w.bezpiecznik && w.zasilanie) {
     return "bezpiecznik nie może być jednocześnie w plecaku i zamontowany.";
   }
-  if (w.wygrana && !w.koniec) {
-    return "wygrana musi oznaczać koniec gry.";
-  }
-  if (w.wygrana && (w.pokoj !== 4 || !w.karta || !w.zasilanie)) {
+  if (w.wygrana && (w.pokoj !== POKOJ_WYJSCIE || !w.karta || !w.zasilanie)) {
     return "wygrana wymaga pokoju Wyjście, karty i działającego zasilania.";
   }
-  if (!w.wygrana && w.koniec && w.energia !== 0) {
-    return "porażka jest możliwa tylko przy energii 0.";
-  }
-  if (!w.wygrana && !w.koniec && w.energia === 0) {
-    return "energia 0 bez wygranej oznacza koniec gry.";
+  if (w.koniec !== (w.wygrana || w.energia === 0)) {
+    return "koniec gry musi odpowiadać wygranej albo energii 0.";
   }
   return null;
 }
 
 
 
-function czyStan(w) {
-  return bladStanu(w) === null;
+function czyStan(wartosc) {
+  return bladStanu(wartosc) === null;
 }
 
 
 
+function odmowa(stanPrzed, komunikat) {
+  return { stan: stanPrzed, komunikat };
+}
+
+
+
+// Reguła gry: (stan, komenda) -> { stan, komunikat }.
+// Odmowa oddaje ten sam obiekt wejściowy, sukces – nowy płaski rekord z kosztem 1 energii.
 function przejscie(stanPrzed, komenda) {
   if (stanPrzed.koniec) {
-    return { stan: stanPrzed, komunikat: "Gra się zakończyła. Wpisz gra.reset(), aby zagrać ponownie." };
+    return odmowa(stanPrzed, "Gra się zakończyła. Wpisz gra.start(), aby zagrać ponownie.");
   }
 
-  const stanPo = { ...stanPrzed };
-  let komunikat = "";
+  let zmiany;
+  let komunikat;
 
   switch (komenda) {
     case "lewo":
     case "prawo": {
-      const cel = stanPo.pokoj + (komenda === "prawo" ? 1 : -1);
-      if (cel < 1 || cel > pokoje.length) {
-        return { stan: stanPrzed, komunikat: "Ściana! Nie możesz tam przejść." };
+      const cel = stanPrzed.pokoj + (komenda === "prawo" ? 1 : -1);
+      if (!znajdzPokoj(cel)) {
+        return odmowa(stanPrzed, "Ściana! Nie możesz tam przejść.");
       }
-      stanPo.pokoj = cel;
+      zmiany = { pokoj: cel };
       komunikat = `Przechodzisz do: ${nazwaPokoju(cel)}.`;
       break;
     }
 
     case "karta":
-      if (stanPo.pokoj !== 1 || stanPo.karta) {
-        return { stan: stanPrzed, komunikat: "Tutaj nie ma karty do zabrania." };
+      if (stanPrzed.pokoj !== POKOJ_KARTA || stanPrzed.karta) {
+        return odmowa(stanPrzed, "Tutaj nie ma karty do zabrania.");
       }
-      stanPo.karta = true;
+      zmiany = { karta: true };
       komunikat = "Zabierasz kartę dostępu.";
       break;
 
     case "bezpiecznik":
-      if (stanPo.pokoj !== 2 || stanPo.bezpiecznik || stanPo.zasilanie) {
-        return { stan: stanPrzed, komunikat: "Tutaj nie ma bezpiecznika do zabrania." };
+      if (stanPrzed.pokoj !== POKOJ_BEZPIECZNIK || stanPrzed.bezpiecznik || stanPrzed.zasilanie) {
+        return odmowa(stanPrzed, "Tutaj nie ma bezpiecznika do zabrania.");
       }
-      stanPo.bezpiecznik = true;
+      zmiany = { bezpiecznik: true };
       komunikat = "Zabierasz bezpiecznik.";
       break;
 
     case "napraw":
-      if (stanPo.pokoj !== 3 || !stanPo.bezpiecznik || stanPo.zasilanie) {
-        return { stan: stanPrzed, komunikat: "Nie możesz tu nic naprawić." };
+      if (stanPrzed.pokoj !== POKOJ_NAPRAWA || !stanPrzed.bezpiecznik || stanPrzed.zasilanie) {
+        return odmowa(stanPrzed, "Nie możesz tu nic naprawić. Potrzebujesz bezpiecznika w Serwerowni.");
       }
-      stanPo.bezpiecznik = false;
-      stanPo.zasilanie = true;
+      zmiany = { bezpiecznik: false, zasilanie: true };
       komunikat = "Montujesz bezpiecznik. Zasilanie wróciło!";
       break;
 
     case "wyjdz":
-      if (stanPo.pokoj !== 4 || !stanPo.karta || !stanPo.zasilanie) {
-        return { stan: stanPrzed, komunikat: "Drzwi się nie otwierają. Potrzebujesz karty i działającego zasilania." };
+      if (stanPrzed.pokoj !== POKOJ_WYJSCIE || !stanPrzed.karta || !stanPrzed.zasilanie) {
+        return odmowa(stanPrzed, "Drzwi się nie otwierają. Potrzebujesz karty i działającego zasilania.");
       }
-      stanPo.wygrana = true;
-      stanPo.koniec = true;
+      zmiany = { wygrana: true };
       komunikat = "Drzwi się otwierają! Uciekasz z serwerowni!";
       break;
 
     default:
-      return { stan: stanPrzed, komunikat: `Nieznana komenda "${komenda}". Wpisz gra.pomoc(), aby zobaczyć listę.` };
+      return odmowa(stanPrzed, `Nieznana komenda "${komenda}". Wpisz gra.pomoc(), aby zobaczyć listę.`);
   }
 
-  stanPo.energia--;
-  if (stanPo.energia === 0 && !stanPo.wygrana) {
-    stanPo.koniec = true;
-  }
+  // Wspólna ścieżka sukcesu: koszt naliczany tylko tutaj.
+  // Wygrana jest ustalona wcześniej, więc ma pierwszeństwo przed porażką przy energii 0.
+  const stanPo = { ...stanPrzed, ...zmiany, energia: stanPrzed.energia - 1 };
+  stanPo.koniec = stanPo.wygrana || stanPo.energia === 0;
 
   return { stan: stanPo, komunikat };
-}
-
-
-
-function utworzZapis(stan) {
-  return JSON.stringify({ wersja: WERSJA_ZAPISU, stan: stan });
-}
-
-
-
-function odczytajZapis(tekst) {
-  if (tekst === null || tekst === undefined) {
-    return { ok: false, blad: "Import anulowany." };
-  }
-  if (typeof tekst !== "string") {
-    return { ok: false, blad: "Import przyjmuje tekst JSON." };
-  }
-  if (tekst.trim() === "") {
-    return { ok: false, blad: "Nie podano tekstu do importu." };
-  }
-
-  let dane;
-  try {
-    dane = JSON.parse(tekst);
-  } catch (e) {
-    return { ok: false, blad: "To nie jest poprawny JSON (może tekst jest urwany?)." };
-  }
-
-  if (dane === null || typeof dane !== "object" || Array.isArray(dane)) {
-    return { ok: false, blad: "Zapis musi być obiektem JSON z polami wersja i stan." };
-  }
-  if (dane.wersja !== WERSJA_ZAPISU) {
-    return { ok: false, blad: `Nieobsługiwana wersja zapisu: ${JSON.stringify(dane.wersja)} (oczekiwana: ${WERSJA_ZAPISU}).` };
-  }
-
-  const blad = bladStanu(dane.stan);
-  if (blad) {
-    return { ok: false, blad: "Niepoprawny stan: " + blad };
-  }
-  return { ok: true, stan: { ...dane.stan } };
 }
