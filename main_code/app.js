@@ -1,8 +1,5 @@
-// app.js – bieżący stan, wypisywanie komunikatów, eksport i import zapisu.
-
 let stan = stanPoczatkowy();
 
-// Rozszerzenie: historia komend z bieżącej sesji. Nie trafia do zapisu (format zostaje w wersji 1).
 let historia = [];
 
 function takNie(wartosc) {
@@ -35,7 +32,6 @@ function utworzZapis(stanDoZapisu) {
   return JSON.stringify({ wersja: WERSJA_ZAPISU, stan: stanDoZapisu });
 }
 
-// Zwraca { ok: true, stan } albo { ok: false, blad }. Nie dotyka bieżącego stanu.
 function odczytajZapis(tekst) {
   if (tekst === null) {
     return { ok: false, blad: "Import anulowany." };
@@ -79,7 +75,7 @@ function odczytajZapis(tekst) {
     return { ok: false, blad: "Niepoprawny stan: " + blad };
   }
 
-  // Przepisujemy tylko znane pola – obce dodatki z pliku nie trafiają do gry.
+
   const nowy = {};
   for (const pole of POLA_STANU) nowy[pole] = kandydat.stan[pole];
   return { ok: true, stan: nowy };
@@ -161,7 +157,7 @@ function akcja(co) {
   wykonaj(co);
 }
 
-// Reset korzysta z fabryki, a nie z wcześniej zmienionego obiektu.
+
 function nowaGra() {
   stan = stanPoczatkowy();
   historia = [];
@@ -171,7 +167,7 @@ function nowaGra() {
   rozejrzyj();
 }
 
-// Tylko zwraca tekst – nie zapisuje pliku, schowka ani storage.
+
 function eksportuj() {
   return utworzZapis(stan);
 }
@@ -197,8 +193,7 @@ function pokazHistorie() {
   console.log(historia.map((wpis, i) => `${i + 1}. ${wpis}`).join("\n"));
 }
 
-// Eksport z menu: wypisuje surowy JSON, gotowy do skopiowania do pliku.
-// Nie zwraca tekstu, żeby konsola nie pokazała go drugi raz w cudzysłowie.
+
 function pokazEksport() {
   console.log(
     "Skopiuj samą linię poniżej do Notatnika i zapisz jako postep.json:",
@@ -210,8 +205,7 @@ function wczytajZOkna() {
   return importuj(prompt("Wklej zawartość postep.json"));
 }
 
-// Menu numerowane – skrót do tych samych funkcji co gra.idz / gra.akcja / itd.
-// Numery to tylko interfejs aplikacji; silnik nadal dostaje zwykłe komendy.
+
 const MENU = [
   { opis: "idź w lewo", uruchom: () => idz("lewo") },
   { opis: "idź w prawo", uruchom: () => idz("prawo") },
@@ -243,7 +237,18 @@ function pokazMenu() {
   );
 }
 
-// Opakowanie poleceń gracza: czyści konsolę, pokazuje menu, a pod nim wynik polecenia.
+/* wersja do testow
+function poKomendzie(funkcja) {
+  return (...argumenty) => {
+    console.clear();
+    pokazMenu();
+    return funkcja(...argumenty);
+  };
+}
+*/
+
+/* wersja oryginalna */
+
 function poKomendzie(funkcja) {
   return (...argumenty) => {
     console.clear();
@@ -252,7 +257,7 @@ function poKomendzie(funkcja) {
   };
 }
 
-// Samo g() nic więcej nie robi – menu pokazuje już poKomendzie.
+
 function wybierz(numer) {
   if (numer === undefined) return;
   const n = Number(numer);
@@ -265,6 +270,27 @@ function wybierz(numer) {
   return MENU[n - 1].uruchom();
 }
 
+/* wersja do testow
+window.g = wybierz;
+
+window.gra = {
+  pomoc: pomoc,
+  status: pokazStatus,
+  mapa: mapa,
+  rozejrzyj: rozejrzyj,
+  idz: idz,
+  akcja: akcja,
+  start: nowaGra,
+  reset: nowaGra,
+  eksportuj: eksportuj,
+  importuj: importuj,
+  historia: pokazHistorie,
+  menu: pokazMenu,
+  wybierz: window.g,
+};
+*/
+
+/* wersja oryginalna */
 window.g = poKomendzie(wybierz);
 
 window.gra = {
@@ -287,7 +313,6 @@ console.log(
   `UCIECZKA Z SERWEROWNI. Zasilanie awaryjne wystarczy na ${ENERGIA_START} tur.`,
 );
 
-// Na starcie tylko menu numerowane; pełna lista poleceń jest pod gra.pomoc().
 pokazMenu();
 
 console.log(

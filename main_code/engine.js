@@ -1,9 +1,6 @@
-// engine.js – reguły gry. Nic tutaj nie wypisuje tekstu i nie zmienia stanu wejściowego.
-
 const WERSJA_ZAPISU = 1;
 
 const ENERGIA_START = 10;
-
 
 
 const pokoje = [
@@ -17,8 +14,6 @@ const POKOJ_KARTA = 1;
 const POKOJ_BEZPIECZNIK = 2;
 const POKOJ_NAPRAWA = 3;
 const POKOJ_WYJSCIE = 4;
-
-
 
 const KIERUNKI = ["lewo", "prawo"];
 
@@ -35,15 +30,12 @@ function znajdzPokoj(numer) {
 }
 
 
-
 function nazwaPokoju(numer) {
   const p = znajdzPokoj(numer);
   return p ? p.nazwa : "Brak pokoju";
 }
 
 
-
-// Fabryka: każde wywołanie zwraca nowy, niezależny obiekt.
 function stanPoczatkowy() {
   return {
     pokoj: 1,
@@ -55,7 +47,6 @@ function stanPoczatkowy() {
     wygrana: false
   };
 }
-
 
 
 function opisPokoju(stan) {
@@ -85,8 +76,6 @@ function opisPokoju(stan) {
 
 
 
-// Zwraca opis pierwszego znalezionego problemu albo null, gdy stan jest poprawny.
-// Dodatkowe, nieznane pola nie są błędem – przy imporcie i tak przepisujemy tylko POLA_STANU.
 function bladStanu(w) {
   if (w === null || typeof w !== "object" || Array.isArray(w)) {
     return "stan musi być obiektem.";
@@ -119,11 +108,9 @@ function bladStanu(w) {
 }
 
 
-
 function czyStan(wartosc) {
   return bladStanu(wartosc) === null;
 }
-
 
 
 function odmowa(stanPrzed, komunikat) {
@@ -131,9 +118,6 @@ function odmowa(stanPrzed, komunikat) {
 }
 
 
-
-// Reguła gry: (stan, komenda) -> { stan, komunikat }.
-// Odmowa oddaje ten sam obiekt wejściowy, sukces – nowy płaski rekord z kosztem 1 energii.
 function przejscie(stanPrzed, komenda) {
   if (stanPrzed.koniec) {
     return odmowa(stanPrzed, "Gra się zakończyła. Wpisz gra.start(), aby zagrać ponownie.");
@@ -190,8 +174,6 @@ function przejscie(stanPrzed, komenda) {
       return odmowa(stanPrzed, `Nieznana komenda "${komenda}". Wpisz gra.pomoc(), aby zobaczyć listę.`);
   }
 
-  // Wspólna ścieżka sukcesu: koszt naliczany tylko tutaj.
-  // Wygrana jest ustalona wcześniej, więc ma pierwszeństwo przed porażką przy energii 0.
   const stanPo = { ...stanPrzed, ...zmiany, energia: stanPrzed.energia - 1 };
   stanPo.koniec = stanPo.wygrana || stanPo.energia === 0;
 
