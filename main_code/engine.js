@@ -1,3 +1,4 @@
+/*enigne*/
 const WERSJA_ZAPISU = 1;
 
 const ENERGIA_START = 10;
