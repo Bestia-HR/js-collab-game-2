@@ -247,7 +247,7 @@ function poKomendzie(funkcja) {
 }
 */
 
-/* wersja oryginalna */
+/*  wersja oryginalna */
 
 function poKomendzie(funkcja) {
   return (...argumenty) => {
